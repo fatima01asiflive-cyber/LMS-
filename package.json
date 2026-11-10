@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "typescript": "^7.0.2"
+  },
+  "scripts": {
+    "dev": "node --import tsx/esm index.ts"
+  }
+}

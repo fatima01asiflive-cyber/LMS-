@@ -1,9 +1,13 @@
 require("dotenv").config();
-import express, { NextFunction, Request, Response } from "express";
-export const app = express();
-import cors from "cors";
-import cookieParser from "cookie-parser";
-import {ErrorMiddleware} from "./middleware/error";
+
+import type { NextFunction, Request, Response } from "express";
+const express = require("express");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const { ErrorMiddleware } = require("./middleware/error");
+
+const app = express();
+
 //body parser
 app.use(express.json({ limit: "50mb" }));
 
@@ -27,9 +31,13 @@ app.get("/test", (_req: Request, res: Response) => {
 
 // unknown route
 app.all(/.*/, (req: Request, res: Response, next: NextFunction) => {
-  const err = new Error(`Route ${req.originalUrl} not found`) as any;
+  const err: Error & { statusCode?: number } = new Error(
+    `Route ${req.originalUrl} not found`,
+  );
   err.statusCode = 404;
   next(err);
 });
 
 app.use(ErrorMiddleware);
+
+module.exports = app;
