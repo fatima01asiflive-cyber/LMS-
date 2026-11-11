@@ -4,6 +4,8 @@ import { Request, Response, NextFunction } from "express";
 import userModel, { IUser } from "../models/user.model";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors";
 import jwt from "jsonwebtoken";
+import ejs from "ejs";
+import path from "path";
 
 // register user
 interface IRegistrationBody {
@@ -52,10 +54,18 @@ export const registrationUser = CatchAsyncError(
 
       const activationToken = createActivationToken(user);
 
-      return res.status(201).json({
+      const activationCode = activationToken.activationCode;
+
+      const data = { user: { name: user.name }, activationCode };
+      const html = await ejs.renderFile(
+        path.join(__dirname, "../mails/activation-mail.ejs"),
+        data,
+      );
+
+      res.status(201).json({
         success: true,
-        activationToken: activationToken.token,
-        activationCode: activationToken.activationCode,
+        activationToken,
+        message: "Please check your email to activate your account",
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
