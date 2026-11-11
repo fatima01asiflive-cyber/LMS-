@@ -17,49 +17,51 @@ export interface IUser extends Document {
   comparePassword: (enteredPassword: string) => Promise<boolean>;
 }
 
-const userSchema = new Schema<IUser>({
-  email: {
-    type: String,
-    required: [true, "please enter your email"],
-    validate: {
-      validator: function (value: string) {
-        return emailRegexPattern.test(value);
+const userSchema = new Schema<IUser>(
+  {
+    email: {
+      type: String,
+      required: [true, "please enter your email"],
+      validate: {
+        validator: function (value: string) {
+          return emailRegexPattern.test(value);
+        },
+        message: "Please enter a valid email address",
       },
-      message: "Please enter a valid email address",
+      unique: true,
     },
-    unique: true,
-  },
-  name: {
-    type: String,
-    required: [true, "please enter your name"],
-  },
-  password: {
-    type: String,
-    required: [true, "please enter your password"],
-    minlength: [6, "Password must be at least 6 characters long"],
-    select: false,
-  },
-  avatar: {
-    public_id: String,
-    url: String,
-  },
-  role: {
-    type: String,
-    default: "user",
-  },
-  isVerified: {
-    type: Boolean,
-    default: false,
-  },
-  courses: [
-    {
-      courseId: String,
+    name: {
+      type: String,
+      required: [true, "please enter your name"],
     },
-  ],
-},{timestamps: true});
+    password: {
+      type: String,
+      required: [true, "please enter your password"],
+      minlength: [6, "Password must be at least 6 characters long"],
+      select: false,
+    },
+    avatar: {
+      public_id: String,
+      url: String,
+    },
+    role: {
+      type: String,
+      default: "user",
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    courses: [
+      {
+        courseId: String,
+      },
+    ],
+  },
+  { timestamps: true },
+);
 
 //Hash Password before saving user
-
 
 userSchema.pre("save", async function (this: IUser) {
   if (!this.isModified("password")) {
@@ -74,5 +76,5 @@ userSchema.methods.comparePassword = async function (enteredPassword: string) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-const userModel:Model<IUser> = mongoose.model("User",userSchema);
+const userModel: Model<IUser> = mongoose.model("User", userSchema);
 export default userModel;
